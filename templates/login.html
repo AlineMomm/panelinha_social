@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Entrar</h2>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="form-row">
+      {{ form.email.label }}{{ form.email(size=32) }}
+      {% for err in form.email.errors %}<div class="small-link">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="form-row">
+      {{ form.password.label }}{{ form.password() }}
+      {% for err in form.password.errors %}<div class="small-link">{{ err }}</div>{% endfor %}
+    </div>
+    <div style="margin-bottom:12px;">
+      {{ form.remember() }} {{ form.remember.label }}
+    </div>
+    <div class="form-row">
+      {{ form.submit() }}
+    </div>
+  </form>
+  <p class="small-link">Não tem conta? <a href="{{ url_for('register') }}">Criar Conta</a></p>
+{% endblock %}
