@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4">🍳 Panelinha Social</h1>
+    <p class="lead">Compartilhe e descubra receitas incríveis!</p>
+    
+    {% if current_user.is_authenticated %}
+    <div class="mt-4">
+        <h3>Bem-vindo de volta, {{ current_user.username }}!</h3>
+        <p>Pronto para explorar novas receitas?</p>
+        <a href="{{ url_for('feed') }}" class="btn btn-success btn-lg">Ver Feed</a>
+        <a href="{{ url_for('new_recipe') }}" class="btn btn-outline-success btn-lg">Postar Receita</a>
+    </div>
+    {% else %}
+    <div class="mt-4">
+        <a href="{{ url_for('register') }}" class="btn btn-success btn-lg me-2">Cadastrar</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-success btn-lg">Entrar</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">📸 Compartilhe</h5>
+                <p class="card-text">Poste suas receitas favoritas com fotos e instruções detalhadas.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">❤️ Interaja</h5>
+                <p class="card-text">Curta, comente e salve as receitas que você mais gostar.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">🔍 Descubra</h5>
+                <p class="card-text">Encontre receitas por ingredientes, categorias ou popularidade.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

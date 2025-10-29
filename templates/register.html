@@ -1,27 +1,84 @@
 {% extends "base.html" %}
+
 {% block content %}
-  <h2>Criar Conta</h2>
-  <form method="post">
-    {{ form.hidden_tag() }}
-    <div class="form-row">
-      {{ form.username.label }}{{ form.username(size=32) }}
-      {% for err in form.username.errors %}<div class="small-link">{{ err }}</div>{% endfor %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Cadastrar no Panelinha Social</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.username.label(class="form-label") }}
+                        {% if form.username.errors %}
+                            {{ form.username(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.username(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.password.label(class="form-label") }}
+                        {% if form.password.errors %}
+                            {{ form.password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.confirm_password.label(class="form-label") }}
+                        {% if form.confirm_password.errors %}
+                            {{ form.confirm_password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.confirm_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.confirm_password(class="form-control") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <small>
+                        Já tem uma conta? <a href="{{ url_for('login') }}">Faça login aqui</a>
+                    </small>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-row">
-      {{ form.email.label }}{{ form.email(size=32) }}
-      {% for err in form.email.errors %}<div class="small-link">{{ err }}</div>{% endfor %}
-    </div>
-    <div class="form-row">
-      {{ form.password.label }}{{ form.password() }}
-      {% for err in form.password.errors %}<div class="small-link">{{ err }}</div>{% endfor %}
-    </div>
-    <div class="form-row">
-      {{ form.password2.label }}{{ form.password2() }}
-      {% for err in form.password2.errors %}<div class="small-link">{{ err }}</div>{% endfor %}
-    </div>
-    <div class="form-row">
-      {{ form.submit() }}
-    </div>
-  </form>
-  <p class="small-link">Já tem conta? <a href="{{ url_for('login') }}">Entrar</a></p>
+</div>
 {% endblock %}

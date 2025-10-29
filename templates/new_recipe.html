@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">🍳 Nova Receita</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {% if form.title.errors %}
+                            {{ form.title(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.title(class="form-control", placeholder="Ex: Bolo de Chocolate Caseiro") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {% if form.description.errors %}
+                            {{ form.description(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.description(class="form-control", rows="3", placeholder="Descreva brevemente sua receita...") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.ingredients.label(class="form-label") }}
+                        <small class="text-muted">(Um ingrediente por linha)</small>
+                        {% if form.ingredients.errors %}
+                            {{ form.ingredients(class="form-control is-invalid", rows="5", placeholder="Ex:\n2 xícaras de farinha de trigo\n3 ovos\n1 xícara de açúcar") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.ingredients.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.ingredients(class="form-control", rows="5", placeholder="Ex:\n2 xícaras de farinha de trigo\n3 ovos\n1 xícara de açúcar") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.steps.label(class="form-label") }}
+                        <small class="text-muted">(Um passo por linha)</small>
+                        {% if form.steps.errors %}
+                            {{ form.steps(class="form-control is-invalid", rows="6", placeholder="Ex:\nPré-aqueça o forno a 180°C\nMisture todos os ingredientes secos\nAdicione os ingredientes líquidos...") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.steps.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.steps(class="form-control", rows="6", placeholder="Ex:\nPré-aqueça o forno a 180°C\nMisture todos os ingredientes secos\nAdicione os ingredientes líquidos...") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.image.label(class="form-label") }}
+                        {{ form.image(class="form-control") }}
+                        {% if form.image.errors %}
+                            <div class="text-danger">
+                                {% for error in form.image.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.categories.label(class="form-label") }}
+                        <small class="text-muted">(Separadas por vírgula)</small>
+                        {% if form.categories.errors %}
+                            {{ form.categories(class="form-control is-invalid", placeholder="Ex: sobremesa, chocolate, fácil") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.categories.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.categories(class="form-control", placeholder="Ex: sobremesa, chocolate, fácil") }}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        {{ form.save_draft(class="btn btn-secondary me-md-2") }}
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

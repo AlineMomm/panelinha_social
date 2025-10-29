@@ -1,0 +1,111 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: #198754;
+    color: white;
+    font-weight: bold;
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.recipe-card {
+    transition: all 0.3s ease;
+}
+
+.recipe-card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.like-btn, .save-btn {
+    transition: all 0.2s ease;
+}
+
+.like-btn:hover, .save-btn:hover {
+    transform: scale(1.05);
+}
+
+.alert {
+    border: none;
+    border-radius: 8px;
+}
+
+.list-group-item.active {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+/* Adicione ao final do seu style.css */
+
+/* Efeito hover para cards clicáveis */
+.recipe-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Links dentro dos cards */
+.recipe-card a {
+    transition: color 0.2s ease;
+}
+
+.recipe-card a:hover {
+    color: #198754 !important;
+}
+
+/* Imagens com efeito de zoom suave */
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.recipe-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+/* Melhorar legibilidade das listas */
+.list-group-item {
+    border: none;
+    padding: 0.75rem 0.5rem;
+}
+
+.list-group-numbered .list-group-item {
+    padding-left: 0;
+}

@@ -1,5 +1,0 @@
-Flask>=2.2
-Flask-WTF>=1.1
-Flask-SQLAlchemy>=3.0
-Flask-Login>=0.6
-WTForms>=3.0
