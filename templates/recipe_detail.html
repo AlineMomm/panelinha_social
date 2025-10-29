@@ -40,17 +40,11 @@
                         <button class="btn btn-outline-danger like-btn" data-recipe-id="{{ recipe.id }}">
                             ❤️ <span class="like-count">{{ recipe.like_count() }}</span>
                         </button>
-                        <button class="btn btn-outline-warning save-btn" data-recipe-id="{{ recipe.id }}">
-                            ⭐ Salvar
-                        </button>
                         {% if current_user.is_authenticated and current_user.id == recipe.user_id %}
                         <div class="btn-group">
                             <a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}" class="btn btn-outline-primary">
                                 ✏️ Editar
                             </a>
-                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                🗑️ Excluir
-                            </button>
                         </div>
                         {% endif %}
                     </div>
@@ -125,24 +119,19 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="row text-center">
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <h5 class="text-success">❤️</h5>
                                         <h4>{{ recipe.like_count() }}</h4>
                                         <p class="text-muted">Curtidas</p>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <h5 class="text-success">💬</h5>
                                         <h4>{{ recipe.comment_count() }}</h4>
                                         <p class="text-muted">Comentários</p>
                                     </div>
-                                    <div class="col-md-3">
-                                        <h5 class="text-success">⭐</h5>
-                                        <h4>{{ recipe.saved_by.count() }}</h4>
-                                        <p class="text-muted">Salvamentos</p>
-                                    </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <h5 class="text-success">👀</h5>
-                                        <h4>{{ recipe.views or 0 }}</h4>
+                                        <h4>{{ recipe.views }}</h4>
                                         <p class="text-muted">Visualizações</p>
                                     </div>
                                 </div>
@@ -157,7 +146,6 @@
                         <div class="card">
                             <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">💬 Comentários ({{ comments|length }})</h5>
-                                <span class="badge bg-light text-success fs-6">{{ recipe.comment_count() }}</span>
                             </div>
                             <div class="card-body">
                                 <!-- Formulário de Comentário -->
@@ -205,21 +193,9 @@
                                                                 <span class="badge bg-warning text-dark">Autor</span>
                                                             {% endif %}
                                                         </div>
-                                                        <div class="d-flex align-items-center">
-                                                            <small class="text-muted me-3">
-                                                                {{ comment.created_at.strftime('%d/%m/%Y às %H:%M') }}
-                                                            </small>
-                                                            {% if current_user.is_authenticated and (current_user.id == comment.user_id or current_user.id == recipe.user_id) %}
-                                                            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" 
-                                                                  method="POST" 
-                                                                  class="d-inline"
-                                                                  onsubmit="return confirm('Tem certeza que deseja excluir este comentário?')">
-                                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                                    🗑️
-                                                                </button>
-                                                            </form>
-                                                            {% endif %}
-                                                        </div>
+                                                        <small class="text-muted">
+                                                            {{ comment.created_at.strftime('%d/%m/%Y às %H:%M') }}
+                                                        </small>
                                                     </div>
                                                     <p class="card-text mb-0 fs-5">{{ comment.content }}</p>
                                                 </div>
@@ -250,35 +226,6 @@
         </div>
     </div>
 </div>
-
-<!-- Modal de Confirmação de Exclusão -->
-{% if current_user.is_authenticated and current_user.id == recipe.user_id %}
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Exclusão</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="fs-5">Tem certeza que deseja excluir a receita <strong>"{{ recipe.title }}"</strong>?</p>
-                <p class="text-danger fs-6"><strong>⚠️ Esta ação não pode ser desfeita!</strong></p>
-                <ul class="text-muted">
-                    <li>Todas as curtidas serão perdidas</li>
-                    <li>Comentários serão excluídos</li>
-                    <li>A imagem será removida</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form action="{{ url_for('delete_recipe', recipe_id=recipe.id) }}" method="POST">
-                    <button type="submit" class="btn btn-danger">Excluir Receita</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
 {% endblock %}
 
 {% block scripts %}
@@ -307,48 +254,13 @@ document.querySelectorAll('.like-btn').forEach(button => {
             }
             
             // Atualizar contador na seção de informações
-            document.querySelector('.row.text-center .col-md-3:nth-child(1) h4').textContent = data.like_count;
+            document.querySelector('.row.text-center .col-md-4:nth-child(1) h4').textContent = data.like_count;
         });
     });
-});
-
-// Função para salvar receita
-document.querySelectorAll('.save-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const recipeId = this.dataset.recipeId;
-        
-        fetch(`/save/${recipeId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.saved) {
-                this.classList.remove('btn-outline-warning');
-                this.classList.add('btn-warning');
-                this.textContent = '⭐ Salvo';
-            } else {
-                this.classList.remove('btn-warning');
-                this.classList.add('btn-outline-warning');
-                this.textContent = '⭐ Salvar';
-            }
-        });
-    });
-});
-
-// Focar no campo de comentário quando a página carregar se houver erro
-document.addEventListener('DOMContentLoaded', function() {
-    const commentErrors = document.querySelector('#content + .text-danger');
-    if (commentErrors) {
-        document.getElementById('content').focus();
-    }
 });
 </script>
 
 <style>
-/* Estilos para a seção de comentários */
 .comments-section .card {
     border: none;
     border-left: 4px solid #198754;
@@ -361,24 +273,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .comments-section .card-body {
     padding: 1rem 1.25rem;
-}
-
-/* Melhorar a aparência dos botões de ação */
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .comments-section .d-flex.justify-content-between {
-        flex-direction: column;
-        align-items: start !important;
-    }
-    
-    .comments-section .d-flex.justify-content-between > div:last-child {
-        margin-top: 0.5rem;
-    }
 }
 </style>
 {% endblock %}

@@ -17,6 +17,10 @@
                        class="list-group-item list-group-item-action {% if sort_by == 'popular' %}active{% endif %}">
                         Mais Populares
                     </a>
+                    <a href="{{ url_for('feed', sort='views') }}" 
+                       class="list-group-item list-group-item-action {% if sort_by == 'views' %}active{% endif %}">
+                        Mais Vistos
+                    </a>
                 </div>
             </div>
         </div>
@@ -57,15 +61,16 @@
                                     Por <strong>{{ recipe.author.username }}</strong>
                                 </p>
                                 
-                                <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="text-decoration-none text-dark">
-                                    <p class="card-text flex-grow-1">{{ recipe.description[:100] }}{% if recipe.description|length > 100 %}...{% endif %}</p>
+                                <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="text-decoration-none text-dark flex-grow-1">
+                                    <p class="card-text">{{ recipe.description[:100] }}{% if recipe.description|length > 100 %}...{% endif %}</p>
                                 </a>
                                 
                                 <div class="mt-auto">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <small class="text-muted">
-                                            {{ recipe.created_at.strftime('%d/%m/%Y') }}
-                                        </small>
+                                    <div class="text-muted small">
+                                        <span class="me-2">👀 {{ recipe.views }}</span>
+                                        <span class="me-2">❤️ {{ recipe.like_count() }}</span>
+                                        <span>💬 {{ recipe.comment_count() }}</span>
+                                    </div>
                                         {% if recipe.categories %}
                                             <small class="text-muted">
                                                 {{ recipe.categories.split(',')[0] }}
@@ -76,11 +81,11 @@
                                     <div class="d-flex justify-content-between">
                                         <button class="btn btn-sm btn-outline-danger like-btn" 
                                                 data-recipe-id="{{ recipe.id }}">
-                                            ❤️ <span class="like-count">{{ recipe.like_count() }}</span>
+                                            ❤️ <span class="like-count">{{ recipe.likes.count() }}</span>
                                         </button>
-                                        <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}#comentarios" 
-                                        class="btn btn-sm btn-outline-info">
-                                            💬 {{ recipe.comment_count() }}
+                                        <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            👀 Ver
                                         </a>
                                         <button class="btn btn-sm btn-outline-warning save-btn" 
                                                 data-recipe-id="{{ recipe.id }}">
@@ -95,9 +100,16 @@
             </div>
         {% else %}
             <div class="text-center py-5">
-                <h4 class="text-muted">Nenhuma receita encontrada</h4>
-                <p class="text-muted">Seja o primeiro a postar uma receita!</p>
-                <a href="{{ url_for('new_recipe') }}" class="btn btn-success">Postar Primeira Receita</a>
+                <div class="card border-0">
+                    <div class="card-body py-5">
+                        <div class="display-1 text-muted mb-4">🍳</div>
+                        <h4 class="text-muted mb-3">Nenhuma receita encontrada</h4>
+                        <p class="text-muted mb-4">Seja o primeiro a postar uma receita!</p>
+                        <a href="{{ url_for('new_recipe') }}" class="btn btn-success btn-lg">
+                            📝 Postar Primeira Receita
+                        </a>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -131,29 +143,31 @@ document.querySelectorAll('.like-btn').forEach(button => {
     });
 });
 
+// Função para salvar receita será implementada depois
 document.querySelectorAll('.save-btn').forEach(button => {
     button.addEventListener('click', function() {
         const recipeId = this.dataset.recipeId;
-        
-        fetch(`/save/${recipeId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.saved) {
-                this.classList.remove('btn-outline-warning');
-                this.classList.add('btn-warning');
-                this.textContent = '⭐ Salvo';
-            } else {
-                this.classList.remove('btn-warning');
-                this.classList.add('btn-outline-warning');
-                this.textContent = '⭐ Salvar';
-            }
-        });
+        alert('Funcionalidade de salvar em desenvolvimento!');
     });
 });
 </script>
+
+<style>
+.recipe-card {
+    transition: all 0.3s ease;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.recipe-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+</style>
 {% endblock %}
