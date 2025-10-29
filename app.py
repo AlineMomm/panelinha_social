@@ -12,7 +12,7 @@ import os
 # Configuração
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'sua-chave-secreta-muito-secreta-aqui-123'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///panelinha_nova.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///panelinha.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = 'static/uploads'
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024
@@ -36,12 +36,15 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
+    bio = db.Column(db.Text)
+    profile_picture = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     recipes = db.relationship('Recipe', backref='author', lazy='dynamic')
     likes = db.relationship('Like', backref='user', lazy='dynamic')
     comments = db.relationship('Comment', backref='user', lazy='dynamic')
-    
+    saved_recipes = db.relationship('SavedRecipe', backref='user', lazy='dynamic')
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
@@ -65,8 +68,8 @@ class Recipe(db.Model):
     
     likes = db.relationship('Like', backref='recipe', lazy='dynamic')
     comments = db.relationship('Comment', backref='recipe', lazy='dynamic')
+    saved_by = db.relationship('SavedRecipe', backref='recipe', lazy='dynamic')
 
-    # MÉTODOS PARA CONTAGEM
     def like_count(self):
         return self.likes.count()
 
@@ -78,11 +81,18 @@ class Recipe(db.Model):
             return Like.query.filter_by(user_id=user.id, recipe_id=self.id).first() is not None
         return False
 
+    def is_saved_by_user(self, user):
+        if user.is_authenticated:
+            return SavedRecipe.query.filter_by(user_id=user.id, recipe_id=self.id).first() is not None
+        return False
+
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'recipe_id', name='unique_like'),)
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -90,6 +100,14 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class SavedRecipe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipe.id'), nullable=False)
+    saved_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'recipe_id', name='unique_save'),)
 
 @login_manager.user_loader
 def load_user(id):
@@ -109,6 +127,16 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirmar Senha', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Cadastrar')
 
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('Este nome de usuário já está em uso.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('Este email já está cadastrado.')
+
 class RecipeForm(FlaskForm):
     title = StringField('Título da Receita', validators=[DataRequired(), Length(max=100)])
     description = TextAreaField('Descrição Curta', validators=[DataRequired()])
@@ -126,7 +154,12 @@ class CommentForm(FlaskForm):
 # Routes
 @app.route('/')
 def index():
-    return render_template('index.html', title='Panelinha Social')
+    # Mostrar algumas receitas públicas na página inicial
+    if current_user.is_authenticated:
+        return redirect(url_for('feed'))
+    
+    recipes = Recipe.query.filter_by(is_draft=False).order_by(Recipe.created_at.desc()).limit(6).all()
+    return render_template('index.html', title='Panelinha Social', recipes=recipes)
 
 @app.route('/feed')
 @login_required
@@ -142,14 +175,20 @@ def feed():
     else:
         recipes = recipes.order_by(Recipe.created_at.desc())
     
-    return render_template('feed.html', title='Feed', recipes=recipes, sort_by=sort_by)
+    return render_template('feed.html', title='Feed', recipes=recipes.all(), sort_by=sort_by)
 
 @app.route('/my_recipes')
 @login_required
 def my_recipes():
-    # Mostrar receitas do usuário (publicadas e rascunhos)
     recipes = Recipe.query.filter_by(user_id=current_user.id).order_by(Recipe.created_at.desc()).all()
     return render_template('my_recipes.html', title='Minhas Receitas', recipes=recipes)
+
+@app.route('/saved_recipes')
+@login_required
+def saved_recipes():
+    saved = SavedRecipe.query.filter_by(user_id=current_user.id).order_by(SavedRecipe.saved_at.desc()).all()
+    recipes = [saved_item.recipe for saved_item in saved]
+    return render_template('saved_recipes.html', title='Receitas Salvas', recipes=recipes)
 
 @app.route('/recipe/new', methods=['GET', 'POST'])
 @login_required
@@ -180,79 +219,6 @@ def new_recipe():
     
     return render_template('new_recipe.html', title='Nova Receita', form=form)
 
-@app.route('/recipe/<int:recipe_id>/edit', methods=['GET', 'POST'])
-@login_required
-def edit_recipe(recipe_id):
-    recipe = Recipe.query.get_or_404(recipe_id)
-    
-    # Verificar se o usuário é o autor da receita
-    if recipe.author != current_user:
-        flash('Você não tem permissão para editar esta receita.', 'danger')
-        return redirect(url_for('recipe_detail', recipe_id=recipe_id))
-    
-    form = RecipeForm()
-    
-    if form.validate_on_submit():
-        # Atualizar imagem se uma nova foi enviada
-        if form.image.data:
-            # Remover imagem antiga se existir
-            if recipe.image and os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image)):
-                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image))
-            
-            image_filename = f"recipe_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{form.image.data.filename}"
-            form.image.data.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
-            recipe.image = image_filename
-        
-        # Atualizar outros campos
-        recipe.title = form.title.data
-        recipe.description = form.description.data
-        recipe.ingredients = form.ingredients.data
-        recipe.steps = form.steps.data
-        recipe.categories = form.categories.data
-        recipe.updated_at = datetime.utcnow()
-        
-        # Se estava como rascunho e agora está publicando
-        if recipe.is_draft and 'submit' in request.form:
-            recipe.is_draft = False
-            flash('Receita publicada com sucesso!', 'success')
-        elif recipe.is_draft and 'save_draft' in request.form:
-            flash('Rascunho atualizado com sucesso!', 'info')
-        else:
-            flash('Receita atualizada com sucesso!', 'success')
-        
-        db.session.commit()
-        return redirect(url_for('recipe_detail', recipe_id=recipe.id))
-    
-    # Preencher o formulário com os dados atuais
-    elif request.method == 'GET':
-        form.title.data = recipe.title
-        form.description.data = recipe.description
-        form.ingredients.data = recipe.ingredients
-        form.steps.data = recipe.steps
-        form.categories.data = recipe.categories
-    
-    return render_template('edit_recipe.html', title='Editar Receita', form=form, recipe=recipe)
-
-@app.route('/recipe/<int:recipe_id>/delete', methods=['POST'])
-@login_required
-def delete_recipe(recipe_id):
-    recipe = Recipe.query.get_or_404(recipe_id)
-    
-    # Verificar se o usuário é o autor da receita
-    if recipe.author != current_user:
-        flash('Você não tem permissão para excluir esta receita.', 'danger')
-        return redirect(url_for('recipe_detail', recipe_id=recipe_id))
-    
-    # Remover imagem se existir
-    if recipe.image and os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image)):
-        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image))
-    
-    db.session.delete(recipe)
-    db.session.commit()
-    
-    flash('Receita excluída com sucesso!', 'success')
-    return redirect(url_for('feed'))
-
 @app.route('/recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def recipe_detail(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
@@ -276,12 +242,76 @@ def recipe_detail(recipe_id):
     comments = Comment.query.filter_by(recipe_id=recipe_id).order_by(Comment.created_at.desc()).all()
     return render_template('recipe_detail.html', title=recipe.title, recipe=recipe, form=form, comments=comments)
 
+@app.route('/recipe/<int:recipe_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_recipe(recipe_id):
+    recipe = Recipe.query.get_or_404(recipe_id)
+    
+    if recipe.author != current_user:
+        flash('Você não tem permissão para editar esta receita.', 'danger')
+        return redirect(url_for('recipe_detail', recipe_id=recipe_id))
+    
+    form = RecipeForm()
+    
+    if form.validate_on_submit():
+        if form.image.data:
+            if recipe.image and os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image)):
+                os.remove(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image))
+            
+            image_filename = f"recipe_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{form.image.data.filename}"
+            form.image.data.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+            recipe.image = image_filename
+        
+        recipe.title = form.title.data
+        recipe.description = form.description.data
+        recipe.ingredients = form.ingredients.data
+        recipe.steps = form.steps.data
+        recipe.categories = form.categories.data
+        recipe.updated_at = datetime.utcnow()
+        
+        if recipe.is_draft and 'submit' in request.form:
+            recipe.is_draft = False
+            flash('Receita publicada com sucesso!', 'success')
+        elif recipe.is_draft and 'save_draft' in request.form:
+            flash('Rascunho atualizado com sucesso!', 'info')
+        else:
+            flash('Receita atualizada com sucesso!', 'success')
+        
+        db.session.commit()
+        return redirect(url_for('recipe_detail', recipe_id=recipe.id))
+    
+    elif request.method == 'GET':
+        form.title.data = recipe.title
+        form.description.data = recipe.description
+        form.ingredients.data = recipe.ingredients
+        form.steps.data = recipe.steps
+        form.categories.data = recipe.categories
+    
+    return render_template('edit_recipe.html', title='Editar Receita', form=form, recipe=recipe)
+
+@app.route('/recipe/<int:recipe_id>/delete', methods=['POST'])
+@login_required
+def delete_recipe(recipe_id):
+    recipe = Recipe.query.get_or_404(recipe_id)
+    
+    if recipe.author != current_user:
+        flash('Você não tem permissão para excluir esta receita.', 'danger')
+        return redirect(url_for('recipe_detail', recipe_id=recipe_id))
+    
+    if recipe.image and os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image)):
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], recipe.image))
+    
+    db.session.delete(recipe)
+    db.session.commit()
+    
+    flash('Receita excluída com sucesso!', 'success')
+    return redirect(url_for('feed'))
+
 @app.route('/comment/<int:comment_id>/delete', methods=['POST'])
 @login_required
 def delete_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
     
-    # Verificar se o usuário é o autor do comentário ou o autor da receita
     if comment.user_id != current_user.id and comment.recipe.author.id != current_user.id:
         flash('Você não tem permissão para excluir este comentário.', 'danger')
         return redirect(url_for('recipe_detail', recipe_id=comment.recipe_id))
@@ -310,6 +340,23 @@ def like_recipe(recipe_id):
     db.session.commit()
     return jsonify({'liked': liked, 'like_count': recipe.likes.count()})
 
+@app.route('/save/<int:recipe_id>', methods=['POST'])
+@login_required
+def save_recipe(recipe_id):
+    recipe = Recipe.query.get_or_404(recipe_id)
+    saved = SavedRecipe.query.filter_by(user_id=current_user.id, recipe_id=recipe_id).first()
+    
+    if saved:
+        db.session.delete(saved)
+        saved_status = False
+    else:
+        saved = SavedRecipe(user_id=current_user.id, recipe_id=recipe_id)
+        db.session.add(saved)
+        saved_status = True
+    
+    db.session.commit()
+    return jsonify({'saved': saved_status})
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -320,7 +367,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            flash('Login realizado!', 'success')
+            flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('feed'))
         flash('Email ou senha inválidos.', 'danger')
     
@@ -337,7 +384,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Conta criada! Faça login.', 'success')
+        flash('Conta criada com sucesso! Faça login.', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html', title='Cadastrar', form=form)
@@ -346,20 +393,13 @@ def register():
 @login_required
 def logout():
     logout_user()
-    flash('Você saiu.', 'info')
+    flash('Você saiu da sua conta.', 'info')
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
     with app.app_context():
-        print("🔄 Criando banco de dados...")
         db.create_all()
-        print("✅ Banco criado com sucesso!")
-        print("📊 Tabelas: User, Recipe (com views), Like, Comment")
-        print("🚀 Rotas disponíveis:")
-        print("   - / (página inicial)")
-        print("   - /feed")
-        print("   - /my_recipes")
-        print("   - /recipe/new")
-        print("   - /recipe/<id>/edit")
-        print("   - /recipe/<id>")
+        print("✅ Panelinha Social iniciado com sucesso!")
+        print("📊 Banco de dados criado")
+        print("🚀 Servidor rodando em http://localhost:5000")
     app.run(debug=True)
