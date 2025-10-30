@@ -40,6 +40,9 @@
                         <button class="btn btn-outline-danger like-btn" data-recipe-id="{{ recipe.id }}">
                             ❤️ <span class="like-count">{{ recipe.like_count() }}</span>
                         </button>
+                        <button class="btn btn-outline-warning save-btn" data-recipe-id="{{ recipe.id }}">
+                            ⭐ Salvar
+                        </button>
                         {% if current_user.is_authenticated and current_user.id == recipe.user_id %}
                         <div class="btn-group">
                             <a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}" class="btn btn-outline-primary">
@@ -119,17 +122,22 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="row text-center">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <h5 class="text-success">❤️</h5>
                                         <h4>{{ recipe.like_count() }}</h4>
                                         <p class="text-muted">Curtidas</p>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <h5 class="text-success">💬</h5>
                                         <h4>{{ recipe.comment_count() }}</h4>
                                         <p class="text-muted">Comentários</p>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        <h5 class="text-success">⭐</h5>
+                                        <h4>{{ recipe.saved_by.count() }}</h4>
+                                        <p class="text-muted">Salvamentos</p>
+                                    </div>
+                                    <div class="col-md-3">
                                         <h5 class="text-success">👀</h5>
                                         <h4>{{ recipe.views }}</h4>
                                         <p class="text-muted">Visualizações</p>
@@ -182,7 +190,7 @@
                                 <div class="comments-section">
                                     {% if comments %}
                                         {% for comment in comments %}
-                                            <div class="card mb-3 {% if comment.user_id == recipe.user_id %}border-warning{% endif %}">
+                                            <div class="card mb-3 comment-card {% if comment.user_id == recipe.user_id %}author-comment{% endif %}">
                                                 <div class="card-body">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                                         <div class="d-flex align-items-center">
@@ -193,9 +201,21 @@
                                                                 <span class="badge bg-warning text-dark">Autor</span>
                                                             {% endif %}
                                                         </div>
-                                                        <small class="text-muted">
-                                                            {{ comment.created_at.strftime('%d/%m/%Y às %H:%M') }}
-                                                        </small>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <small class="text-muted">
+                                                                {{ comment.created_at.strftime('%d/%m/%Y às %H:%M') }}
+                                                            </small>
+                                                            {% if current_user.is_authenticated and (current_user.id == comment.user_id or current_user.id == recipe.user_id) %}
+                                                            <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" 
+                                                                  method="POST" 
+                                                                  class="d-inline"
+                                                                  onsubmit="return confirm('Tem certeza que deseja excluir este comentário?')">
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir comentário">
+                                                                    🗑️
+                                                                </button>
+                                                            </form>
+                                                            {% endif %}
+                                                        </div>
                                                     </div>
                                                     <p class="card-text mb-0 fs-5">{{ comment.content }}</p>
                                                 </div>
@@ -254,25 +274,62 @@ document.querySelectorAll('.like-btn').forEach(button => {
             }
             
             // Atualizar contador na seção de informações
-            document.querySelector('.row.text-center .col-md-4:nth-child(1) h4').textContent = data.like_count;
+            document.querySelector('.row.text-center .col-md-3:nth-child(1) h4').textContent = data.like_count;
+        });
+    });
+});
+
+// Função para salvar receita
+document.querySelectorAll('.save-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const recipeId = this.dataset.recipeId;
+        
+        fetch(`/save/${recipeId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.saved) {
+                this.classList.remove('btn-outline-warning');
+                this.classList.add('btn-warning');
+                this.textContent = '⭐ Salvo';
+            } else {
+                this.classList.remove('btn-warning');
+                this.classList.add('btn-outline-warning');
+                this.textContent = '⭐ Salvar';
+            }
+            
+            // Atualizar contador na seção de informações
+            const savedCountElement = document.querySelector('.row.text-center .col-md-3:nth-child(3) h4');
+            const currentCount = parseInt(savedCountElement.textContent);
+            savedCountElement.textContent = data.saved ? currentCount + 1 : currentCount - 1;
         });
     });
 });
 </script>
 
 <style>
-.comments-section .card {
+.comment-card {
     border: none;
-    border-left: 4px solid #198754;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
 }
 
-.comments-section .card.border-warning {
+.author-comment {
+    background: #fff3cd;
     border-left: 4px solid #ffc107;
-    background-color: #fffbf0;
 }
 
 .comments-section .card-body {
     padding: 1rem 1.25rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
 }
 </style>
 {% endblock %}

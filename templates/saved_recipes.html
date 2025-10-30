@@ -3,41 +3,12 @@
 {% block content %}
 <div class="container-fluid">
     <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">Ordenar por</h6>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        <a href="{{ url_for('feed', sort='recent') }}" 
-                           class="list-group-item list-group-item-action {% if sort_by == 'recent' %}active{% endif %}">
-                            Mais Recentes
-                        </a>
-                        <a href="{{ url_for('feed', sort='popular') }}" 
-                           class="list-group-item list-group-item-action {% if sort_by == 'popular' %}active{% endif %}">
-                            Mais Populares
-                        </a>
-                        <a href="{{ url_for('feed', sort='views') }}" 
-                           class="list-group-item list-group-item-action {% if sort_by == 'views' %}active{% endif %}">
-                            Mais Vistos
-                        </a>
-                    </div>
-                </div>
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>⭐ Receitas Salvas</h2>
+                <span class="badge bg-success fs-6">{{ recipes|length }} receitas</span>
             </div>
-            
-            <div class="d-grid">
-                <a href="{{ url_for('new_recipe') }}" class="btn btn-success">
-                    📝 Postar Receita
-                </a>
-            </div>
-        </div>
-        
-        <!-- Conteúdo principal -->
-        <div class="col-md-9">
-            <h2 class="mb-4">🍳 Feed de Receitas</h2>
-            
+
             {% if recipes %}
                 <div class="row">
                     {% for recipe in recipes %}
@@ -91,9 +62,10 @@
                                                class="btn btn-sm btn-outline-primary">
                                                 👀 Ver
                                             </a>
-                                            <button class="btn btn-sm btn-outline-warning save-btn" 
-                                                    data-recipe-id="{{ recipe.id }}">
-                                                ⭐ Salvar
+                                            <button class="btn btn-sm btn-outline-warning save-btn active" 
+                                                    data-recipe-id="{{ recipe.id }}"
+                                                    title="Remover dos salvos">
+                                                ⭐ Salvo
                                             </button>
                                         </div>
                                     </div>
@@ -104,13 +76,13 @@
                 </div>
             {% else %}
                 <div class="text-center py-5">
-                    <div class="card border-0">
+                    <div class="card border-0 bg-light">
                         <div class="card-body py-5">
-                            <div class="display-1 text-muted mb-4">🍳</div>
-                            <h4 class="text-muted mb-3">Nenhuma receita encontrada</h4>
-                            <p class="text-muted mb-4">Seja o primeiro a postar uma receita!</p>
-                            <a href="{{ url_for('new_recipe') }}" class="btn btn-success btn-lg">
-                                📝 Postar Primeira Receita
+                            <div class="display-1 text-muted mb-4">⭐</div>
+                            <h3 class="text-muted mb-3">Nenhuma receita salva</h3>
+                            <p class="text-muted mb-4">Salve receitas que você gostou para encontrá-las facilmente depois!</p>
+                            <a href="{{ url_for('feed') }}" class="btn btn-success btn-lg">
+                                🔍 Explorar Receitas
                             </a>
                         </div>
                     </div>
@@ -160,14 +132,36 @@ document.querySelectorAll('.save-btn').forEach(button => {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.saved) {
-                this.classList.remove('btn-outline-warning');
-                this.classList.add('btn-warning');
-                this.textContent = '⭐ Salvo';
-            } else {
-                this.classList.remove('btn-warning');
-                this.classList.add('btn-outline-warning');
-                this.textContent = '⭐ Salvar';
+            if (!data.saved) {
+                // Remover o card da lista
+                this.closest('.col-xl-4').remove();
+                
+                // Atualizar contador se existir
+                const badge = document.querySelector('.badge.bg-success');
+                if (badge) {
+                    const count = parseInt(badge.textContent) - 1;
+                    badge.textContent = count + ' receitas';
+                    
+                    if (count === 0) {
+                        // Mostrar mensagem de lista vazia
+                        document.querySelector('.row').innerHTML = `
+                            <div class="col-12">
+                                <div class="text-center py-5">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body py-5">
+                                            <div class="display-1 text-muted mb-4">⭐</div>
+                                            <h3 class="text-muted mb-3">Nenhuma receita salva</h3>
+                                            <p class="text-muted mb-4">Salve receitas que você gostou para encontrá-las facilmente depois!</p>
+                                            <a href="{{ url_for('feed') }}" class="btn btn-success btn-lg">
+                                                🔍 Explorar Receitas
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
             }
         });
     });
