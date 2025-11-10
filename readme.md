@@ -1,10 +1,10 @@
-## 🍳 Panelinha Social
+# 🍳 Panelinha Social
 Uma rede social deliciosa para compartilhar e descobrir receitas culinárias
 
-# Sobre o Projeto
+## Sobre o Projeto
 O Panelinha Social é uma plataforma web onde entusiastas da culinária podem compartilhar suas receitas, descobrir novas ideias culinárias e interagir com outros amantes da gastronomia. Desenvolvido com Flask, oferece uma experiência intuitiva e social para todos os tipos de cozinheiros.
 
-# Funcionalidades
+## Funcionalidades
 - Criar, editar e excluir receitas
 - Upload de imagens
 - Categorização por dificuldade (Fácil, Médio, Difícil)
@@ -20,7 +20,7 @@ O Panelinha Social é uma plataforma web onde entusiastas da culinária podem co
 - Ordenação por popularidade, data e visualizações
 - Paginação de resultados
 
-# Autenticação e Segurança
+### Autenticação e Segurança
 - Sistema de registro e login
 - Edição de perfil
 - Alteração de senha
@@ -28,12 +28,12 @@ O Panelinha Social é uma plataforma web onde entusiastas da culinária podem co
 - Upload seguro de imagens
 
 
-# Comandos Básicos:
-## Criar ambiente virtual
+### Comandos Básicos:
+#### Criar ambiente virtual
 python -m venv venv
-## Ativar ambiente virtual (Windows)
+#### Ativar ambiente virtual (Windows)
 venv\Scripts\activate
-## Instalar dependências
+#### Instalar dependências
 pip install -r requirements.txt
-## Executar
+#### Executar
 python app.py ou flask run
