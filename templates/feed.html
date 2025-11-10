@@ -1,5 +1,26 @@
 {% extends "base.html" %}
-
+<!-- Barra de Busca Rápida -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ url_for('search') }}" method="GET" class="row g-2">
+            <div class="col-md-8">
+                <input type="text" 
+                       name="q" 
+                       class="form-control" 
+                       placeholder="Buscar receitas por título, ingredientes, categorias..."
+                       required>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-success w-100">🔍 Buscar</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('search') }}" class="btn btn-outline-secondary w-100">
+                    Busca Avançada
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 {% block content %}
 <div class="container-fluid">
     <div class="row">

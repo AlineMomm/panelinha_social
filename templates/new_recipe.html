@@ -95,7 +95,23 @@
                             {{ form.categories(class="form-control", placeholder="Ex: sobremesa, chocolate, fácil") }}
                         {% endif %}
                     </div>
-                    
+
+                    <div class="mb-3">
+                    {{ form.difficulty.label(class="form-label") }}
+                    {% if form.difficulty.errors %}
+                        {{ form.difficulty(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.difficulty.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.difficulty(class="form-control") }}
+                    {% endif %}
+                    <small class="text-muted">Digite: Fácil, Médio ou Difícil</small>
+</div>
+                    </div>
+                                        
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         {{ form.save_draft(class="btn btn-secondary me-md-2") }}
                         {{ form.submit(class="btn btn-success") }}

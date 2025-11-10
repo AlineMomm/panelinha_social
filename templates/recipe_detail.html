@@ -64,6 +64,18 @@
                         </div>
                     </div>
                 {% endif %}
+                <!-- Dificuldade -->
+                <div class="mb-4">
+                    <h6 class="text-muted">Dificuldade:</h6>
+                    <span class="badge 
+                        {% if recipe.difficulty == 'Fácil' %}bg-success
+                        {% elif recipe.difficulty == 'Médio' %}bg-warning
+                        {% else %}bg-danger{% endif %} fs-6">
+                        {% if recipe.difficulty == 'Fácil' %}🥄 Fácil
+                        {% elif recipe.difficulty == 'Médio' %}🥄🥄 Médio
+                        {% else %}🥄🥄🥄 Difícil{% endif %}
+                    </span>
+                </div>
                 
                 <!-- Descrição -->
                 <div class="mb-5">
@@ -134,7 +146,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <h5 class="text-success">⭐</h5>
-                                        <h4>{{ recipe.saved_by.count() }}</h4>
+                                        <h4>{{ recipe.saved_count() }}</h4>
                                         <p class="text-muted">Salvamentos</p>
                                     </div>
                                     <div class="col-md-3">

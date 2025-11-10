@@ -102,6 +102,20 @@
                             {{ form.categories(class="form-control", placeholder="Ex: sobremesa, chocolate, fácil") }}
                         {% endif %}
                     </div>
+                    <!-- Adicione este campo após o campo de categorias -->
+                    <div class="mb-3">
+                        {{ form.difficulty.label(class="form-label") }}
+                        {% if form.difficulty.errors %}
+                            {{ form.difficulty(class="form-select is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.difficulty.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.difficulty(class="form-select") }}
+                        {% endif %}
+                    </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-between">
                         <div>

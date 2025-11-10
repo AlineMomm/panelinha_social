@@ -19,30 +19,77 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Menu do lado esquerdo -->
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('feed') }}">Feed</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('my_recipes') }}">Minhas Receitas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('saved_recipes') }}">Salvas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('new_recipe') }}">Nova Receita</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('feed') }}">Feed</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('new_recipe') }}">Nova Receita</a>
+                        </li>
                     {% endif %}
                 </ul>
                 
+                <!-- Barra de Busca - Atualize para esta versão -->
+                <form class="d-flex me-3" action="{{ url_for('search') }}" method="GET">
+                    <div class="input-group" style="min-width: 250px;">
+                        <input type="text" 
+                            name="q" 
+                            class="form-control" 
+                            placeholder="Buscar receitas..."
+                            value="{{ request.args.get('q', '') }}">
+                        <button class="btn btn-success" type="submit">
+                            🔍
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Menu do usuário do lado direito -->
                 <div class="navbar-nav">
                     {% if current_user.is_authenticated %}
-                    <span class="navbar-text me-3">Olá, {{ current_user.username }}!</span>
-                    <a class="nav-link" href="{{ url_for('logout') }}">Sair</a>
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                👋 Olá, {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('user_profile', username=current_user.username) }}">
+                                        👤 Meu Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('edit_profile') }}">
+                                        ⚙️ Editar Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('change_password') }}">
+                                        🔒 Alterar Senha
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('my_recipes') }}">
+                                        📝 Minhas Receitas
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('saved_recipes') }}">
+                                        ⭐ Receitas Salvas
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('logout') }}">
+                                        🚪 Sair
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     {% else %}
-                    <a class="nav-link" href="{{ url_for('login') }}">Entrar</a>
-                    <a class="nav-link" href="{{ url_for('register') }}">Cadastrar</a>
+                        <a class="nav-link" href="{{ url_for('login') }}">Entrar</a>
+                        <a class="nav-link" href="{{ url_for('register') }}">Cadastrar</a>
                     {% endif %}
                 </div>
             </div>
