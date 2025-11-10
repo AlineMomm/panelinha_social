@@ -96,21 +96,25 @@
                         {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                    {{ form.difficulty.label(class="form-label") }}
+                  <!-- Dificuldade - Campo de Seleção -->
+                <div class="mb-3">
+                    {{ form.difficulty.label(class="form-label fw-bold") }}
                     {% if form.difficulty.errors %}
-                        {{ form.difficulty(class="form-control is-invalid") }}
+                        {{ form.difficulty(class="form-select is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.difficulty.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.difficulty(class="form-control") }}
+                        {{ form.difficulty(class="form-select") }}
                     {% endif %}
-                    <small class="text-muted">Digite: Fácil, Médio ou Difícil</small>
-</div>
-                    </div>
+                    <small class="text-muted">
+                        🥄 Fácil: Poucos ingredientes, passos simples<br>
+                        🥄🥄 Médio: Alguma experiência necessária<br>
+                        🥄🥄🥄 Difícil: Técnicas avançadas, múltiplos passos
+                    </small>
+                </div>
                                         
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         {{ form.save_draft(class="btn btn-secondary me-md-2") }}

@@ -113,20 +113,24 @@
                                 <h5 class="mb-0">👩‍🍳 Modo de Preparo</h5>
                             </div>
                             <div class="card-body">
-                                <ol class="list-group list-group-numbered list-group-flush">
+                                <div class="steps-container">
                                     {% for step in recipe.steps.split('\n') %}
                                         {% if step.strip() %}
-                                            <li class="list-group-item d-flex align-items-start">
-                                                <span class="fs-5 me-3">{{ loop.index }}.</span>
-                                                <span class="fs-5">{{ step.strip() }}</span>
-                                            </li>
+                                            <div class="step-item d-flex align-items-start mb-3 p-3 bg-light rounded">
+                                                <div class="step-number bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                                    style="width: 35px; height: 35px; min-width: 35px;">
+                                                    <strong>{{ loop.index }}</strong>
+                                                </div>
+                                                <div class="step-content flex-grow-1">
+                                                    <span class="fs-5">{{ step.strip() }}</span>
+                                                </div>
+                                            </div>
                                         {% endif %}
                                     {% endfor %}
-                                </ol>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 
                 <!-- Informações adicionais -->
                 <div class="row mt-4">

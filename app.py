@@ -458,10 +458,17 @@ class RecipeForm(FlaskForm):
     image = FileField('Foto da Receita', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'])])
     categories = StringField('Categorias (separadas por vírgula)')
     
-    # Versão alternativa se SelectField não funcionar
-    difficulty = StringField('Dificuldade', 
-                           validators=[DataRequired()],
-                           render_kw={"placeholder": "Fácil, Médio ou Difícil"})
+    # CAMPO DE SELEÇÃO CORRIGIDO
+    difficulty = SelectField(
+        'Nível de Dificuldade', 
+        choices=[
+            ('', 'Selecione a dificuldade...'),
+            ('Fácil', 'Fácil'),
+            ('Médio', 'Médio'), 
+            ('Difícil', 'Difícil')
+        ], 
+        validators=[DataRequired(message='Por favor, selecione o nível de dificuldade')]
+    )
     
     submit = SubmitField('Publicar Receita')
     save_draft = SubmitField('Salvar Rascunho')
