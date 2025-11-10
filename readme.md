@@ -31,8 +31,10 @@ O Panelinha Social é uma plataforma web onde entusiastas da culinária podem co
 ### Comandos Básicos:
 #### Criar ambiente virtual
 python -m venv venv
-#### Ativar ambiente virtual (Windows)
+#### Ativar ambiente virtual (Linux/Mac)
 venv\Scripts\activate
+### Ativar ambiente virtual (Windows)
+source venv/bin/activate
 #### Instalar dependências
 pip install -r requirements.txt
 #### Executar
