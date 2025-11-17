@@ -50,14 +50,14 @@
             
             <div class="d-grid">
                 <a href="{{ url_for('new_recipe') }}" class="btn btn-success">
-                    📝 Postar Receita
+                    Postar Receita
                 </a>
             </div>
         </div>
         
         <!-- Conteúdo principal -->
         <div class="col-md-9">
-            <h2 class="mb-4">🍳 Feed de Receitas</h2>
+            <h2 class="mb-4">Feed de Receitas</h2>
             
             {% if recipes %}
                 <div class="row">
@@ -71,7 +71,7 @@
                                     {% else %}
                                         <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
                                              style="height: 200px;">
-                                            <span class="text-muted">📷 Sem imagem</span>
+                                            <span class="text-muted">Sem imagem</span>
                                         </div>
                                     {% endif %}
                                 </a>
@@ -108,9 +108,6 @@
                                                     data-recipe-id="{{ recipe.id }}">
                                                 ❤️ <span class="like-count">{{ recipe.like_count() }}</span>
                                             </button>
-                                            <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                👀 Ver
                                             </a>
                                             <button class="btn btn-sm btn-outline-warning save-btn" 
                                                     data-recipe-id="{{ recipe.id }}">
@@ -131,7 +128,7 @@
                             <h4 class="text-muted mb-3">Nenhuma receita encontrada</h4>
                             <p class="text-muted mb-4">Seja o primeiro a postar uma receita!</p>
                             <a href="{{ url_for('new_recipe') }}" class="btn btn-success btn-lg">
-                                📝 Postar Primeira Receita
+                                Postar Primeira Receita
                             </a>
                         </div>
                     </div>

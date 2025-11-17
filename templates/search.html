@@ -6,20 +6,30 @@
         <!-- Cabeçalho da Busca -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="mb-1">🔍 Resultados da Busca</h2>
+                <h2 class="mb-1">
+                    {% if query %}
+                        🔍 Resultados para "{{ query }}"
+                    {% elif difficulty %}
+                        🥄 Receitas {{ difficulty }}
+                    {% else %}
+                       🔍 Todas as Receitas
+                    {% endif %}
+                </h2>
                 <p class="text-muted mb-0">
                     {% if recipes %}
                         {% if query and difficulty %}
-                            Encontramos {{ pagination.total }} resultado(s) para "<strong>{{ query }}</strong>" com dificuldade <strong>{{ difficulty }}</strong>
+                            {{ pagination.total }} receita(s) encontrada(s) para "{{ query }}" com dificuldade {{ difficulty }}
                         {% elif query %}
-                            Encontramos {{ pagination.total }} resultado(s) para "<strong>{{ query }}</strong>"
+                            {{ pagination.total }} receita(s) encontrada(s) para "{{ query }}"
                         {% elif difficulty %}
-                            Encontramos {{ pagination.total }} receita(s) com dificuldade <strong>{{ difficulty }}</strong>
+                            {{ pagination.total }} receita(s) com dificuldade {{ difficulty }}
+                        {% else %}
+                            {{ pagination.total }} receita(s) disponível(is)
                         {% endif %}
                     {% else %}
-                        Nenhum resultado encontrado
-                        {% if query %}para "<strong>{{ query }}</strong>"{% endif %}
-                        {% if difficulty %}com dificuldade <strong>{{ difficulty }}</strong>{% endif %}
+                        Nenhuma receita encontrada
+                        {% if query %}para "{{ query }}"{% endif %}
+                        {% if difficulty %}com dificuldade {{ difficulty }}{% endif %}
                     {% endif %}
                 </p>
             </div>
@@ -42,9 +52,9 @@
                     <div class="col-md-3">
                         <select name="difficulty" class="form-select">
                             <option value="">Todas as dificuldades</option>
-                            <option value="Fácil" {% if difficulty == 'Fácil' %}selected{% endif %}>🥄 Fácil</option>
-                            <option value="Médio" {% if difficulty == 'Médio' %}selected{% endif %}>🥄🥄 Médio</option>
-                            <option value="Difícil" {% if difficulty == 'Difícil' %}selected{% endif %}>🥄🥄🥄 Difícil</option>
+                            <option value="Fácil" {% if difficulty == 'Fácil' %}selected{% endif %}>Fácil</option>
+                            <option value="Médio" {% if difficulty == 'Médio' %}selected{% endif %}>Médio</option>
+                            <option value="Difícil" {% if difficulty == 'Difícil' %}selected{% endif %}>Difícil</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -53,10 +63,10 @@
                         </button>
                     </div>
                 </form>
-                
+
                 <!-- Filtros Rápidos -->
                 <div class="mt-3">
-                    <small class="text-muted">Filtrar por dificuldade:</small>
+                    <small class="text-muted">Pesquisar todas as receitas por dificuldade:</small>
                     <div class="d-flex gap-2 mt-1">
                         <a href="{{ url_for('search', difficulty='Fácil') }}" 
                            class="btn btn-sm {% if difficulty == 'Fácil' %}btn-success{% else %}btn-outline-success{% endif %}">

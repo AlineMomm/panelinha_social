@@ -366,11 +366,6 @@ def search():
     page = request.args.get('page', 1, type=int)
     per_page = 12
     
-    # Se não há query nem filtro, redirecionar
-    if not query and not difficulty:
-        flash('Por favor, digite algo para buscar ou selecione um filtro.', 'info')
-        return redirect(url_for('feed'))
-    
     # Construir filtro de busca
     filters = [Recipe.is_draft == False]
     
@@ -396,12 +391,23 @@ def search():
     # Otimizar contagens
     recipes = get_recipes_with_counts(recipes_pagination.items)
     
+    # Determinar título da página
+    if query and difficulty:
+        title = f'Busca: "{query}" + {difficulty}'
+    elif query:
+        title = f'Busca: "{query}"'
+    elif difficulty:
+        title = f'Dificuldade: {difficulty}'
+    else:
+        title = 'Todas as Receitas'
+    
     return render_template('search.html', 
-                         title=f'Busca: {query}' if query else f'Dificuldade: {difficulty}',
+                         title=title,
                          recipes=recipes,
                          query=query,
                          difficulty=difficulty,
                          pagination=recipes_pagination)
+
 
 @app.route('/change_password', methods=['GET', 'POST'])
 @login_required
@@ -453,10 +459,10 @@ class RegistrationForm(FlaskForm):
 class RecipeForm(FlaskForm):
     title = StringField('Título da Receita', validators=[DataRequired(), Length(max=100)])
     description = TextAreaField('Descrição Curta', validators=[DataRequired()])
-    ingredients = TextAreaField('Ingredientes (um por linha)', validators=[DataRequired()])
-    steps = TextAreaField('Passos do Preparo (um por linha)', validators=[DataRequired()])
+    ingredients = TextAreaField('Ingredientes', validators=[DataRequired()])
+    steps = TextAreaField('Passos do Preparo', validators=[DataRequired()])
     image = FileField('Foto da Receita', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'])])
-    categories = StringField('Categorias (separadas por vírgula)')
+    categories = StringField('Categorias')
     
     # CAMPO DE SELEÇÃO CORRIGIDO
     difficulty = SelectField(

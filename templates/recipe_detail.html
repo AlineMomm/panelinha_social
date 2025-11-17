@@ -43,6 +43,12 @@
                         <button class="btn btn-outline-warning save-btn" data-recipe-id="{{ recipe.id }}">
                             ⭐ Salvar
                         </button>
+                        
+                        <!-- BOTÃO DE IMPRIMIR -->
+                        <button class="btn btn-outline-info print-btn" data-bs-toggle="modal" data-bs-target="#printModal" title="Imprimir receita">
+                            🖨️ Imprimir
+                        </button>
+                        
                         {% if current_user.is_authenticated and current_user.id == recipe.user_id %}
                         <div class="btn-group">
                             <a href="{{ url_for('edit_recipe', recipe_id=recipe.id) }}" class="btn btn-outline-primary">
@@ -51,6 +57,19 @@
                         </div>
                         {% endif %}
                     </div>
+                </div>
+                
+                <!-- Dificuldade -->
+                <div class="mb-4">
+                    <h6 class="text-muted">Dificuldade:</h6>
+                    <span class="badge 
+                        {% if recipe.difficulty == 'Fácil' %}bg-success
+                        {% elif recipe.difficulty == 'Médio' %}bg-warning
+                        {% else %}bg-danger{% endif %} fs-6">
+                        {% if recipe.difficulty == 'Fácil' %}🥄 Fácil
+                        {% elif recipe.difficulty == 'Médio' %}🥄🥄 Médio
+                        {% else %}🥄🥄🥄 Difícil{% endif %}
+                    </span>
                 </div>
                 
                 <!-- Categorias -->
@@ -64,18 +83,6 @@
                         </div>
                     </div>
                 {% endif %}
-                <!-- Dificuldade -->
-                <div class="mb-4">
-                    <h6 class="text-muted">Dificuldade:</h6>
-                    <span class="badge 
-                        {% if recipe.difficulty == 'Fácil' %}bg-success
-                        {% elif recipe.difficulty == 'Médio' %}bg-warning
-                        {% else %}bg-danger{% endif %} fs-6">
-                        {% if recipe.difficulty == 'Fácil' %}🥄 Fácil
-                        {% elif recipe.difficulty == 'Médio' %}🥄🥄 Médio
-                        {% else %}🥄🥄🥄 Difícil{% endif %}
-                    </span>
-                </div>
                 
                 <!-- Descrição -->
                 <div class="mb-5">
@@ -118,7 +125,7 @@
                                         {% if step.strip() %}
                                             <div class="step-item d-flex align-items-start mb-3 p-3 bg-light rounded">
                                                 <div class="step-number bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                                    style="width: 35px; height: 35px; min-width: 35px;">
+                                                     style="width: 35px; height: 35px; min-width: 35px;">
                                                     <strong>{{ loop.index }}</strong>
                                                 </div>
                                                 <div class="step-content flex-grow-1">
@@ -131,6 +138,7 @@
                             </div>
                         </div>
                     </div>
+                </div>
                 
                 <!-- Informações adicionais -->
                 <div class="row mt-4">
@@ -262,11 +270,207 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Confirmação de Impressão -->
+<div class="modal fade" id="printModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🖨️ Imprimir Receita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Deseja imprimir a receita <strong>"{{ recipe.title }}"</strong>?</p>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="includeImage" checked>
+                    <label class="form-check-label" for="includeImage">
+                        Incluir imagem da receita
+                    </label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="includeComments" checked>
+                    <label class="form-check-label" for="includeComments">
+                        Incluir comentários
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="includeStats" checked>
+                    <label class="form-check-label" for="includeStats">
+                        Incluir estatísticas (curtidas, visualizações)
+                    </label>
+                </div>
+                <small class="text-muted d-block mt-3">
+                    💡 Dica: A receita será formatada automaticamente para impressão.
+                </small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="confirmPrint()">
+                    🖨️ Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
+<style>
+/* Estilos para impressão - versão simplificada */
+@media print {
+    /* Esconder elementos não essenciais */
+    .navbar, 
+    .btn-group, 
+    .modal,
+    .modal-backdrop,
+    .alert,
+    footer,
+    .no-print {
+        display: none !important;
+    }
+    
+    /* Reset de estilos para impressão */
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header {
+        background: #f8f9fa !important;
+        color: black !important;
+        border-bottom: 2px solid #000 !important;
+    }
+    
+    .text-success {
+        color: black !important;
+        font-weight: bold;
+    }
+    
+    .bg-success {
+        background: #f8f9fa !important;
+        color: black !important;
+    }
+    
+    .badge {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: black !important;
+    }
+    
+    .step-number {
+        background: black !important;
+        color: white !important;
+    }
+    
+    /* Layout de uma coluna para impressão */
+    .row {
+        display: block !important;
+    }
+    
+    .col-md-6 {
+        width: 100% !important;
+        float: none !important;
+    }
+    
+    /* Melhorar espaçamento */
+    .mb-4, .mb-5 {
+        margin-bottom: 15px !important;
+    }
+    
+    .mt-4, .mt-5 {
+        margin-top: 15px !important;
+    }
+}
+
+/* Classe para esconder elementos na impressão */
+.no-print {
+    display: block;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
+
 <script>
-// Função para curtir receita
+// Função para confirmar e executar a impressão
+function confirmPrint() {
+    const includeImage = document.getElementById('includeImage').checked;
+    const includeComments = document.getElementById('includeComments').checked;
+    const includeStats = document.getElementById('includeStats').checked;
+    
+    // Adicionar classes no-print baseado nas opções
+    if (!includeImage) {
+        const imgElement = document.querySelector('.card-img-top');
+        if (imgElement) imgElement.classList.add('no-print');
+    }
+    
+    if (!includeComments) {
+        const commentsSection = document.querySelector('.row.mt-5');
+        if (commentsSection) commentsSection.classList.add('no-print');
+    }
+    
+    if (!includeStats) {
+        const statsSection = document.querySelector('.row.mt-4');
+        if (statsSection) statsSection.classList.add('no-print');
+    }
+    
+    // Adicionar no-print nos botões e elementos de ação
+    const actionElements = document.querySelectorAll(`
+        .btn-group,
+        .like-btn, 
+        .save-btn, 
+        .print-btn,
+        .alert-info,
+        .btn-success,
+        .mt-4.text-center,
+        .btn-outline-primary
+    `);
+    
+    actionElements.forEach(element => {
+        element.classList.add('no-print');
+    });
+    
+    // Fechar modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('printModal'));
+    modal.hide();
+    
+    // Aguardar um pouco e imprimir
+    setTimeout(() => {
+        window.print();
+        
+        // Remover classes no-print após impressão
+        setTimeout(() => {
+            document.querySelectorAll('.no-print').forEach(element => {
+                element.classList.remove('no-print');
+            });
+        }, 100);
+    }, 300);
+}
+
+// Evento para limpar as classes se o usuário cancelar a impressão
+window.addEventListener('afterprint', function() {
+    document.querySelectorAll('.no-print').forEach(element => {
+        element.classList.remove('no-print');
+    });
+});
+
+// Seus scripts existentes para like e save
 document.querySelectorAll('.like-btn').forEach(button => {
     button.addEventListener('click', function() {
         const recipeId = this.dataset.recipeId;
@@ -289,13 +493,11 @@ document.querySelectorAll('.like-btn').forEach(button => {
                 this.classList.add('btn-outline-danger');
             }
             
-            // Atualizar contador na seção de informações
             document.querySelector('.row.text-center .col-md-3:nth-child(1) h4').textContent = data.like_count;
         });
     });
 });
 
-// Função para salvar receita
 document.querySelectorAll('.save-btn').forEach(button => {
     button.addEventListener('click', function() {
         const recipeId = this.dataset.recipeId;
@@ -318,7 +520,6 @@ document.querySelectorAll('.save-btn').forEach(button => {
                 this.textContent = '⭐ Salvar';
             }
             
-            // Atualizar contador na seção de informações
             const savedCountElement = document.querySelector('.row.text-center .col-md-3:nth-child(3) h4');
             const currentCount = parseInt(savedCountElement.textContent);
             savedCountElement.textContent = data.saved ? currentCount + 1 : currentCount - 1;
@@ -326,26 +527,4 @@ document.querySelectorAll('.save-btn').forEach(button => {
     });
 });
 </script>
-
-<style>
-.comment-card {
-    border: none;
-    border-radius: 8px;
-    background: #f8f9fa;
-    margin-bottom: 1rem;
-}
-
-.author-comment {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
-}
-
-.comments-section .card-body {
-    padding: 1rem 1.25rem;
-}
-
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-}
-</style>
 {% endblock %}
