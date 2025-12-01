@@ -10,12 +10,10 @@
     
     <!-- SCRIPT CRÍTICO - Executa ANTES da renderização -->
     <script>
-    // Aplicar tema IMEDIATAMENTE para evitar flash
     (function() {
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         
-        // Adicionar classe quando carregado para transições suaves
         window.addEventListener('DOMContentLoaded', function() {
             document.body.classList.add('loaded');
         });
@@ -24,7 +22,6 @@
 
     <!-- CSS DO MODO NOTURNO NO HEAD - CRÍTICO -->
     <style>
-    /* Aplicar modo escuro IMEDIATAMENTE se necessário */
     :root {
         --bg-color: #ffffff;
         --text-color: #212529;
@@ -32,23 +29,32 @@
         --border-color: #dee2e6;
         --success-color: #198754;
         --header-bg: #f8f9fa;
+        --ingredient-bg: #f8f9fa;
+        --ingredient-text: #212529;
     }
 
     [data-theme="dark"] {
-        --bg-color: #1a1a1a;
+        --bg-color: #121212;
         --text-color: #e9ecef;
-        --card-bg: #2d2d2d;
-        --border-color: #495057;
+        --card-bg: #1e1e1e;
+        --border-color: #343a40;
         --success-color: #20c997;
-        --header-bg: #343a40;
+        --header-bg: #212529;
+        --ingredient-bg: #252525;
+        --ingredient-text: #e9ecef;
     }
 
-    /* Aplicar cores imediatamente baseado no data-theme */
+    /* APLICAÇÃO IMEDIATA DO MODO ESCURO */
     [data-theme="dark"] body {
         background-color: var(--bg-color) !important;
         color: var(--text-color) !important;
     }
 
+    [data-theme="dark"] .container {
+        background-color: var(--bg-color) !important;
+    }
+
+    /* NAVBAR */
     [data-theme="dark"] .navbar-light {
         background-color: var(--header-bg) !important;
         border-color: var(--border-color) !important;
@@ -59,13 +65,126 @@
         color: var(--text-color) !important;
     }
 
+    /* CARDS (FEED, LISTAGENS) */
     [data-theme="dark"] .card {
         background-color: var(--card-bg) !important;
         border-color: var(--border-color) !important;
         color: var(--text-color) !important;
     }
 
-    /* Transições suaves apenas após o carregamento */
+    [data-theme="dark"] .card-header {
+        background-color: var(--header-bg) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-color) !important;
+    }
+
+    [data-theme="dark"] .card .card-title {
+        color: #e9ecef !important;
+        font-weight: 600;
+    }
+
+    [data-theme="dark"] .card .card-text {
+        color: #adb5bd !important;
+    }
+
+    [data-theme="dark"] .card small {
+        color: #6c757d !important;
+    }
+
+    [data-theme="dark"] .card .text-muted {
+        color: #6c757d !important;
+    }
+
+    [data-theme="dark"] .card .text-success {
+        color: #20c997 !important;
+    }
+
+    [data-theme="dark"] .card .badge {
+        color: white !important;
+    }
+
+    [data-theme="dark"] .card-img-top {
+        opacity: 0.9;
+    }
+
+    /* PÁGINAS DE RECEITAS - REGRAS ESPECÍFICAS E AGRESSIVAS */
+    [data-theme="dark"] .container > .row > .col,
+    [data-theme="dark"] .container > .row > div,
+    [data-theme="dark"] .container > div:not(.navbar):not(.alert) {
+        background-color: var(--bg-color) !important;
+    }
+
+    /* INGREDIENTES - REGRAS ESPECÍFICAS */
+    [data-theme="dark"] .list-group,
+    [data-theme="dark"] .list-group-item,
+    [data-theme="dark"] ul:not(.navbar-nav),
+    [data-theme="dark"] ol,
+    [data-theme="dark"] li {
+        background-color: var(--ingredient-bg) !important;
+        color: var(--ingredient-text) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    /* REGRAS PARA QUALQUER ELEMENTO DENTRO DE UMA RECEITA */
+    [data-theme="dark"] div[class*="recipe"],
+    [data-theme="dark"] div[class*="ingredient"],
+    [data-theme="dark"] div[class*="step"],
+    [data-theme="dark"] div[class*="detail"],
+    [data-theme="dark"] div[class*="content"]:not(.container) {
+        background-color: var(--card-bg) !important;
+        color: var(--text-color) !important;
+    }
+
+    /* TÍTULOS DENTRO DE RECEITAS */
+    [data-theme="dark"] h1, 
+    [data-theme="dark"] h2, 
+    [data-theme="dark"] h3, 
+    [data-theme="dark"] h4, 
+    [data-theme="dark"] h5, 
+    [data-theme="dark"] h6 {
+        color: #ffcc00 !important;
+    }
+
+    /* LISTAS DENTRO DE RECEITAS */
+    [data-theme="dark"] ul:not(.navbar-nav) li,
+    [data-theme="dark"] ol li {
+        background-color: var(--ingredient-bg) !important;
+        color: var(--ingredient-text) !important;
+        padding: 8px !important;
+        margin-bottom: 4px !important;
+        border-radius: 4px !important;
+    }
+
+    /* PARÁGRAFOS E TEXTO DENTRO DE RECEITAS */
+    [data-theme="dark"] p,
+    [data-theme="dark"] span:not(.badge),
+    [data-theme="dark"] div:not([class]):not([id]) {
+        color: var(--text-color) !important;
+    }
+
+    /* ELEMENTOS DE TEXTO BOOTSTRAP */
+    [data-theme="dark"] .text-body {
+        color: var(--text-color) !important;
+    }
+
+    [data-theme="dark"] .bg-white {
+        background-color: var(--card-bg) !important;
+    }
+
+    [data-theme="dark"] .bg-light {
+        background-color: var(--ingredient-bg) !important;
+    }
+
+    /* BORDAS */
+    [data-theme="dark"] .border,
+    [data-theme="dark"] .border-bottom,
+    [data-theme="dark"] .border-top,
+    [data-theme="dark"] .border-start,
+    [data-theme="dark"] .border-end {
+        border-color: var(--border-color) !important;
+    }
+
+    /* TRANSIÇÕES */
     body.loaded * {
         transition: all 0.3s ease;
     }

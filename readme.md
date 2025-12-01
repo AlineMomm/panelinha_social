@@ -21,9 +21,9 @@ cd panelinha-social
 #### 2. Crie um ambiente virtual (recomendado)
 python -m venv venv
 #### 3. Ative o ambiente virtual
-Linux/Mac:
+(Windows:)                  
 source venv/bin/activate
-Windows:
+(Linux/Mac:)
 venv\Scripts\activate
 #### 4. Instale as dependências
 pip install -r requirements.txt
