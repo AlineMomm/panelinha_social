@@ -70,18 +70,29 @@ http://127.0.0.1:5000
 - Botão de impressão com modal
 - Badges coloridos por dificuldade
 # Backend
-- Flask 2.3.3 - Framework web minimalista e poderoso
-- Flask-SQLAlchemy 3.0.5 - ORM para banco de dados
-- Flask-Login 0.6.3 - Sistema de autenticação
-- Flask-WTF 1.1.1 - Formulários web seguros
-- Werkzeug 2.3.7 - Utilitários WSGI e segurança
-- SQLAlchemy 2.0.23 - ORM avançado
+- Flask 2.3.3 
+    - Framework web minimalista e poderoso
+- Flask-SQLAlchemy 3.0.5 
+    - ORM para banco de dados
+- Flask-Login 0.6.3 
+    - Sistema de autenticação
+- Flask-WTF 1.1.1 
+    - Formulários web seguros
+- Werkzeug 2.3.7 
+    - Utilitários WSGI e segurança
+- SQLAlchemy 2.0.23 
+    - ORM avançado
 # Frontend
-- Bootstrap 5.1.3 - Framework CSS responsivo
-- Jinja2 3.1.2 - Sistema de templates
-- JavaScript Vanilla - Interatividade sem frameworks
-- Pillow 10.0.1 - Processamento de imagens
+- Bootstrap 5.1.3 
+    - Framework CSS responsivo
+- Jinja2 3.1.2 
+    - Sistema de templates
+- JavaScript Vanilla 
+    - Interatividade sem frameworks
+- Pillow 10.0.1 
+    - Processamento de imagens
 # Banco de Dados
-- SQLite - Banco relacional embutido (desenvolvimento)
+- SQLite
+    - Banco relacional embutido (desenvolvimento)
 - Índices otimizados para performance
 - Modelagem relacional com chaves estrangeiras
