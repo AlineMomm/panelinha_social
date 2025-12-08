@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍳</text></svg>">
     
-    <!-- SCRIPT CRÍTICO - Executa ANTES da renderização -->
+    <!-- Executa antes da renderização -->
     <script>
     (function() {
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -19,8 +19,6 @@
         });
     })();
     </script>
-
-    <!-- CSS DO MODO NOTURNO NO HEAD - CRÍTICO -->
     <style>
     :root {
         --bg-color: #ffffff;
@@ -44,7 +42,7 @@
         --ingredient-text: #e9ecef;
     }
 
-    /* APLICAÇÃO IMEDIATA DO MODO ESCURO */
+    /* MODO ESCURO */
     [data-theme="dark"] body {
         background-color: var(--bg-color) !important;
         color: var(--text-color) !important;
@@ -65,7 +63,7 @@
         color: var(--text-color) !important;
     }
 
-    /* CARDS (FEED, LISTAGENS) */
+    /* CARDS */
     [data-theme="dark"] .card {
         background-color: var(--card-bg) !important;
         border-color: var(--border-color) !important;

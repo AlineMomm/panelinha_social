@@ -10,7 +10,7 @@ O **Panelinha Social** é uma plataforma web onde entusiastas da culinária pode
 - Fomentar comunidade e troca de conhecimentos
 - Facilitar descoberta de novas receitas
 
-## 🚀 Instalação Rápida
+## Instalação
 ### Pré-requisitos
 - Python 3.8 ou superior
 - pip (gerenciador de pacotes Python)
@@ -30,7 +30,6 @@ pip install -r requirements.txt
 #### 5. Execute a aplicação
 python app.py
 #### 6. Acesse no navegador
-http://127.0.0.1:5000
 
 # Funcionalidades
 ## Gestão de Receitas

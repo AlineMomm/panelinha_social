@@ -485,8 +485,6 @@ class CommentForm(FlaskForm):
 
 # FUNÇÕES AUXILIARES OTIMIZADAS
 def get_recipes_with_counts(recipes):
-    """Otimiza contagens em lote - agora aceita tanto Query quanto List"""
-    
     # Se for uma query, executa e pega os resultados
     if hasattr(recipes, 'all'):
         recipes = recipes.all()
@@ -621,7 +619,7 @@ def recipe_detail(recipe_id):
     
     form = CommentForm()
     
-    # Incrementar visualizações de forma otimizada
+    # Incrementar visualizações
     recipe.views = Recipe.views + 1
     db.session.commit()
     
@@ -641,8 +639,6 @@ def recipe_detail(recipe_id):
     
     return render_template('recipe_detail.html', title=recipe.title, recipe=recipe, form=form, comments=comments)
 
-# ... (mantém as outras rotas iguais, mas aplica as otimizações onde necessário)
-
 @app.route('/like/<int:recipe_id>', methods=['POST'])
 @login_required
 def like_recipe(recipe_id):
@@ -659,7 +655,6 @@ def like_recipe(recipe_id):
     
     db.session.commit()
     
-    # Retornar contagem atualizada
     like_count = Like.query.filter_by(recipe_id=recipe_id).count()
     return jsonify({'liked': liked, 'like_count': like_count})
 
@@ -678,16 +673,13 @@ def save_recipe(recipe_id):
     
     db.session.commit()
     
-    # Retornar contagem atualizada
     saved_count = SavedRecipe.query.filter_by(recipe_id=recipe_id).count()
     return jsonify({'saved': saved_status, 'saved_count': saved_count})
 
-# Migração para adicionar campo difficulty
 def init_difficulty_column():
     """Execute esta função uma vez para adicionar a coluna difficulty"""
     try:
         with db.engine.connect() as conn:
-            # Verificar se a coluna já existe (SQLite)
             result = conn.execute(text("PRAGMA table_info(recipe)"))
             columns = [row[1] for row in result]
             
@@ -701,11 +693,10 @@ def init_difficulty_column():
     except Exception as e:
         print(f"❌ Erro na migração: {e}")
 
-# Atualize a parte final do arquivo:
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        init_difficulty_column()  # ADICIONE ESTA LINHA
+        init_difficulty_column()
         print("🚀 Panelinha Social iniciado!")
         print("📊 Banco configurado com índices e otimizações")
         print("⚡ Performance melhorada significativamente")
