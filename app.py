@@ -13,7 +13,16 @@ from sqlalchemy import func, text
 # Configuração OTIMIZADA
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'sua-chave-secreta-muito-secreta-aqui-123'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///panelinha.db'
+
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+
+    if DATABASE_URL:
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    elif os.environ.get('VERCEL'):
+        SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/panelinha.db'
+    else:
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///panelinha.db'
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_recycle': 300,
@@ -693,13 +702,13 @@ def init_difficulty_column():
     except Exception as e:
         print(f"❌ Erro na migração: {e}")
 
+with app.app_context():
+    db.create_all()
+    init_difficulty_column()
+    print("🚀 Panelinha Social iniciado!")
+    print("📊 Banco configurado com índices e otimizações")
+    print("⚡ Performance melhorada significativamente")
+    print("🥄 Sistema de dificuldade implementado!")
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        init_difficulty_column()
-        print("🚀 Panelinha Social iniciado!")
-        print("📊 Banco configurado com índices e otimizações")
-        print("⚡ Performance melhorada significativamente")
-        print("🥄 Sistema de dificuldade implementado!")
-    
     app.run(debug=True)
